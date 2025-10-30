@@ -7,11 +7,10 @@ const products = [
   { id: 5, name: "Product 5", price: 50 },
 ];
 
-// DOM elements
 const productList = document.getElementById("product-list");
 const cartList = document.getElementById("cart-list");
 
-// Render product list
+// STEP 1: Render all products
 function renderProducts() {
   products.forEach((product) => {
     const li = document.createElement("li");
@@ -22,11 +21,7 @@ function renderProducts() {
     productList.appendChild(li);
   });
 
-  attachAddToCartEvents();
-}
-
-// Attach "Add to Cart" button events
-function attachAddToCartEvents() {
+  // ✅ STEP 2: Attach event listeners here after rendering
   const buttons = document.querySelectorAll(".add-to-cart-btn");
 
   buttons.forEach((button) => {
@@ -34,57 +29,38 @@ function attachAddToCartEvents() {
       const productId = button.getAttribute("data-id");
       const product = products.find((p) => p.id == productId);
 
+      // ✅ Get existing cart or empty array
       let cart = JSON.parse(sessionStorage.getItem("cart")) || [];
+
+      // ✅ Add product without overwriting old ones
       cart.push(product);
+
+      // ✅ Save updated cart
       sessionStorage.setItem("cart", JSON.stringify(cart));
 
-      renderCart(); // re-render cart after adding
+      renderCart(); // re-render cart if needed
     });
   });
 }
 
-// Render cart list
+// STEP 3: Render cart list (if needed)
 function renderCart() {
-  cartList.innerHTML = ""; // clear previous render
+  cartList.innerHTML = "";
   const cart = JSON.parse(sessionStorage.getItem("cart")) || [];
 
   cart.forEach((item) => {
     const li = document.createElement("li");
-    li.innerHTML = `
-      ${item.name} - $${item.price} 
-      <button class="remove-cart-btn" data-id="${item.id}">Remove</button>
-    `;
+    li.textContent = `${item.name} - $${item.price}`;
     cartList.appendChild(li);
   });
-
-  attachRemoveEvents();
 }
 
-// Remove item from cart
-function attachRemoveEvents() {
-  const removeButtons = document.querySelectorAll(".remove-cart-btn");
-
-  removeButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const id = button.getAttribute("data-id");
-      removeFromCart(id);
-    });
-  });
-}
-
-function removeFromCart(productId) {
-  let cart = JSON.parse(sessionStorage.getItem("cart")) || [];
-  cart = cart.filter((item) => item.id != productId);
-  sessionStorage.setItem("cart", JSON.stringify(cart));
-  renderCart();
-}
-
-// Clear entire cart
+// STEP 4: Clear cart
 function clearCart() {
-  sessionStorage.removeItem("cart");
+  sessionStorage.clear();
   renderCart();
 }
 
-// Initial render
+// STEP 5: Initial render
 renderProducts();
 renderCart();
